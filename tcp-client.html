@@ -60,10 +60,10 @@
         category: 'network',
         color: '#cc66ff',
         defaults: {
-            action: { value: "Start", required: true, validate: RED.validators.typedInput("actionType") },
+            action: { value: "Listen", required: true, validate: RED.validators.typedInput("actionType") },
             actionType: { value: "str" },
-            port: { value:"", required: true, validate: RED.validators.typedInput("portType") },
-            portType: { value: "str" },
+            port: { value: "payload", required: true, validate: RED.validators.typedInput("portType") },
+            portType: { value: "msg" },
             datamode: {value: "stream" },
             datatype: {value: "buffer" },
             newline: {value: "" },

@@ -1,6 +1,6 @@
 # node-red-contrib-tcp-client
 
-Unlike the default node-red tcp-in node, this one allows to create a dynamic TCP client.
+Unlike the default node-red tcp-in node, this one allows you to create dynamic TCP client.
 
 It also allows XML output.
 

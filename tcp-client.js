@@ -12,7 +12,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.action = config.action;
+        this.action = config.action || "Listen";
         this.port = config.port * 1;
         this.topic = config.topic;
         this.stream = (!config.datamode || config.datamode=='stream'); /* stream,single*/
@@ -82,7 +82,10 @@ module.exports = function (RED) {
                                         parseOpts.tagNameProcessors = [ stripPrefix ];
                                     }
 
-                                    parseXml(result.payload + node.newline, parseOpts, function (parseErr, parseResult) {
+                                    var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag
+                                    parseStr += node.newline;
+
+                                    parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
                                         if (!parseErr) { 
                                             result.payload = config.xmlSimplify ? simplifyXML(parseResult) : parseResult;
                                             nodeSend(result);

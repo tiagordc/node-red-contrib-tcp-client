@@ -1,0 +1,28 @@
+{
+  "name": "node-red-contrib-tcp-client",
+  "version": "0.0.1",
+  "description": "Start a dynamic TCP client",
+  "node-red": {
+    "nodes": {
+      "tcp-client": "tcp-client.js"
+    }
+  },
+  "dependencies": {
+    "xml2js": "0.4.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagordc/node-red-contrib-tcp-client.git"
+  },
+  "keywords": [
+    "node-red",
+    "node",
+    "tcp"
+  ],
+  "author": "Tiago Costa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tiagordc/node-red-contrib-tcp-client/issues"
+  },
+  "homepage": "https://github.com/tiagordc/node-red-contrib-tcp-client#readme"
+}

@@ -1,0 +1,144 @@
+<script type="text/x-red" data-template-name="tcp-client">
+
+    <div class="form-row">
+        <label for="node-input-action"><i class="fa fa-tag"></i> Action</label>
+        <input type="text" id="node-input-action" placeholder="" style="width: 70%;">
+        <input type="hidden" id="node-input-actionType">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-globe"></i> Port</label>
+        <input type="text" id="node-input-port" style="width:70%;" />
+        <input type="hidden" id="node-input-portType">
+    </div>
+
+    <div class="form-row">
+        <label><i class="fa fa-sign-out"></i> Output</label>
+        <select id="node-input-datamode" style="width:110px;">
+            <option value="stream">stream of</option>
+            <option value="single">single</option>
+        </select>
+        <select id="node-input-datatype" style="width:140px;">
+            <option value="buffer">Buffer</option>
+            <option value="utf8">String</option>
+            <option value="base64">Base64 String</option>
+            <option value="xml">XML</option>
+        </select>
+        payload(s)
+    </div>
+
+    <div id="node-row-newline" class="form-row hidden" style="padding-left:110px;">
+        <span id="node-span-delimit">delimited by </span>
+        <input type="text" id="node-input-newline">
+    </div>
+
+    <div id="node-row-xml" class="form-row hidden">
+        <label><i class="fa fa-sliders"></i> Options</label>        
+        <label for="node-input-xmlStrip" style="width:70%">
+            <input type="checkbox" id="node-input-xmlStrip" style="display:inline-block; width:22px; vertical-align:baseline;"> Remove namespaces from response
+        </label>
+        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+            <input type="checkbox" id="node-input-xmlSimplify" style="display:inline-block; width:22px; vertical-align:baseline;"> Response does not contain collections
+        </label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"><i class="icon-tag"></i> Topic</label>
+        <input type="text" id="node-input-topic" placeholder="" style="width: 70%;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="" style="width: 70%;">
+    </div>
+
+  </script>
+
+<script type="text/javascript">
+
+    RED.nodes.registerType('tcp-client', {
+        category: 'network',
+        color: '#cc66ff',
+        defaults: {
+            action: { value: "Start", required: true, validate: RED.validators.typedInput("actionType") },
+            actionType: { value: "str" },
+            port: { value:"", required: true, validate: RED.validators.typedInput("portType") },
+            portType: { value: "str" },
+            datamode: {value: "stream" },
+            datatype: {value: "buffer" },
+            newline: {value: "" },
+            xmlStrip: { value: false },
+            xmlSimplify: { value: false },
+            topic: { value: "" },
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "bridge-dash.svg",
+        label: function () {
+            return this.name || "TCP";
+        },
+        oneditprepare: function () {
+
+            var updateOptions = function() {
+
+                var datamode = $("#node-input-datamode").val();
+                var datatype = $("#node-input-datatype").val();
+
+                if (datamode == "stream") {
+                    if (datatype == "utf8" || datatype == "xml") {
+                        $("#node-row-newline").show();
+                    } 
+                    else {
+                        $("#node-row-newline").hide();
+                    }
+                } 
+                else {
+                    $("#node-row-newline").hide();
+                }
+
+                $("#node-span-delimit").text("delimited by ");
+
+                if (datatype == "xml") {
+                    $("#node-row-xml").show();
+                    $("#node-span-delimit").text("end tag ");
+                }
+                else {
+                    $("#node-row-xml").hide();
+                }
+
+            };
+
+            updateOptions();
+
+            $("#node-input-datatype").change(updateOptions);
+            $("#node-input-datamode").change(updateOptions);
+
+            if (this.actionType == null || this.actionType === 'string' || this.actionType === 'none') {
+                this.actionType = "str";
+            }
+
+            $("#node-input-actionType").val(this.actionType);
+
+            $("#node-input-action").typedInput({ 
+                default: 'str', 
+                typeField: $("#node-input-actionType"),
+                types: ['str', 'msg', 'flow', 'global', 'env'] 
+            });
+
+            if (this.portType == null || this.portType === 'string' || this.portType === 'none') {
+                this.portType = "str";
+            }
+
+            $("#node-input-portType").val(this.portType);
+
+            $("#node-input-port").typedInput({ 
+                default: 'str', 
+                typeField: $("#node-input-portType"),
+                types: ['str', 'msg', 'flow', 'global', 'env'] 
+            });
+
+        }
+    });
+
+</script>

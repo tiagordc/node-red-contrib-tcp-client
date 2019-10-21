@@ -6,7 +6,7 @@ It also allows XML output.
 
 ## How it works:
 
-![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-simple-soap/master/edit.png)
+![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/edit.png)
 
 ### Future:
 

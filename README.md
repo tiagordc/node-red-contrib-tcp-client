@@ -1,12 +1,8 @@
 # node-red-contrib-tcp-client
 
-[![NPM version][npm-image]][npm-url]
-[![Downloads][downloads-image]][npm-url]
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/tiagordc/node-red-contrib-tcp-client?label=package)
-
-[npm-url]: https://npmjs.org/package/node-red-contrib-tcp-client
-[downloads-image]: https://img.shields.io/npm/dm/node-red-contrib-tcp-client.svg
-[npm-image]: https://img.shields.io/npm/v/node-red-contrib-tcp-client.svg
+![npm](https://img.shields.io/npm/dm/node-red-contrib-tcp-client)
+[![Downloads][downloads-image]][npm-url]
 
 Unlike the default node-red tcp-in node, this one allows you to create dynamic TCP connections.
 

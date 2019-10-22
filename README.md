@@ -13,7 +13,7 @@ Allows stopping an existing connection by passing a "close" action:
 
 ![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/flow.png)
 
-Added support to XML over TCP with parsing and some options on the output.
+This node was developed specifically for XML over TCP with some parsing options but other formats shoult still be supported.
 
 ## How it works:
 

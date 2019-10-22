@@ -33,12 +33,24 @@
     </div>
 
     <div id="node-row-xml" class="form-row hidden">
-        <label><i class="fa fa-sliders"></i> Options</label>        
-        <label for="node-input-xmlStrip" style="width:70%">
-            <input type="checkbox" id="node-input-xmlStrip" style="display:inline-block; width:22px; vertical-align:baseline;"> Remove namespaces from response
+        <label><i class="fa fa-sliders"></i> Options</label>
+        <label for="node-input-xmlStrip" style="width:70%;">
+            Attribute prefix: <input type="text" id="node-input-xmlAttrkey" style="width:50px;" /> 
+        </label>
+        <label for="node-input-xmlStrip" style="width:70%; margin-left: 104px;">
+            Content prefix: <input type="text" id="node-input-xmlCharkey" style="width:50px;" />
+        </label>
+        <label for="node-input-xmlStrip" style="width:70%; margin-left: 104px;">
+            <input type="checkbox" id="node-input-xmlStrip" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlStrip"> Remove namespaces from response</span>
         </label>
         <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
-            <input type="checkbox" id="node-input-xmlSimplify" style="display:inline-block; width:22px; vertical-align:baseline;"> Response does not contain collections
+            <input type="checkbox" id="node-input-xmlArray" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlArray"> Handle child nodes as arrays</span>
+        </label>
+        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+            <input type="checkbox" id="node-input-xmlNormalizeTags" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlNormalizeTags"> Normalize all tag names to lowercase</span>
+        </label>
+        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+            <input type="checkbox" id="node-input-xmlNormalize" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlNormalize"> Trim whitespaces inside text nodes</span>
         </label>
     </div>
 
@@ -67,8 +79,12 @@
             datamode: {value: "stream" },
             datatype: {value: "buffer" },
             newline: {value: "" },
+            xmlAttrkey: { value: "$" },
+            xmlCharkey: { value: "_" },
             xmlStrip: { value: false },
-            xmlSimplify: { value: false },
+            xmlArray: { value: false },
+            xmlNormalizeTags: { value: false },
+            xmlNormalize: { value: false },
             topic: { value: "" },
             name: { value: "" }
         },

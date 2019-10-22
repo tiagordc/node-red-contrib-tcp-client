@@ -77,11 +77,16 @@ module.exports = function (RED) {
     
                                         var xml2js = require('xml2js');
                                         var parseXml = xml2js.parseString;
-                                        var parseOpts = {};
-                                        parseOpts.async = true;
-                                        parseOpts.attrkey = '$';
-                                        parseOpts.charkey = '_';
-    
+
+                                        var parseOpts = {
+                                            async: true,
+                                            attrkey: (config.xmlAttrkey || '$'),
+                                            charkey: (config.xmlCharkey || '_'),
+                                            explicitArray:  config.xmlArray,
+                                            normalizeTags: config.xmlNormalizeTags,
+                                            normalize: config.xmlNormalize
+                                        };
+
                                         if (config.xmlStrip) {
                                             var stripPrefix = require('xml2js').processors.stripPrefix;
                                             parseOpts.tagNameProcessors = [ stripPrefix ];
@@ -92,7 +97,7 @@ module.exports = function (RED) {
     
                                         parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
                                             if (!parseErr) { 
-                                                result.payload = config.xmlSimplify ? simplifyXML(parseResult) : parseResult;
+                                                result.payload = parseResult;
                                                 nodeSend(result);
                                             }
                                         });
@@ -211,28 +216,6 @@ module.exports = function (RED) {
             node.status({});
 
         });
-
-        function simplifyXML(message) {
-    
-            if (typeof message !== 'object') 
-                return message;
-            
-            var keys = Object.keys(message);
-            var result = message;
-            
-            if (keys.length === 1 && keys[0] === '0') { // instanceOf Array
-                result = result['0'];     
-            }
-    
-            if (typeof result === 'object')  {
-                for (var prop in result) {
-                    result[prop] = simplifyXML(result[prop]);
-                }
-            }
-          
-            return result;
-              
-        }
 
     };
 

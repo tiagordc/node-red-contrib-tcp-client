@@ -1,16 +1,16 @@
 # node-red-contrib-tcp-client
 
-Unlike the default node-red tcp-in node, this one allows you to create dynamic TCP client.
+Unlike the default node-red tcp-in node, this one allows you to create dynamic TCP connections.
 
-It also allows XML output.
+Allows stopping an existing connection by passing a "close" action:
+
+![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/flow.png)
+
+Added support to XML over TCP with parsing and some options on the output.
 
 ## How it works:
 
 ![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/edit.png)
-
-### Future:
-
-Reset connection
 
 ## To install: 
 

@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-tcp-client",
-  "version": "0.0.1",
-  "description": "Start a dynamic TCP client",
+  "version": "0.0.2",
+  "description": "Dynamic TCP input node",
   "node-red": {
     "nodes": {
       "tcp-client": "tcp-client.js"
@@ -17,7 +17,9 @@
   "keywords": [
     "node-red",
     "node",
-    "tcp"
+    "tcp",
+    "client",
+    "xml"
   ],
   "author": "Tiago Costa",
   "license": "MIT",

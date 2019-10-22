@@ -12,7 +12,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        this.action = config.action || "Listen";
+        this.action = config.action || "listen"; /* listen,close */
         this.port = config.port * 1;
         this.topic = config.topic;
         this.stream = (!config.datamode || config.datamode=='stream'); /* stream,single*/
@@ -22,7 +22,9 @@ module.exports = function (RED) {
         this.connected = false;
 
         const node = this;
+
         var connectionPool = {};
+        var server;
 
         node.on('input', function (msg, nodeSend, nodeDone) {
 
@@ -34,147 +36,180 @@ module.exports = function (RED) {
                 node.port = (RED.util.evaluateNodeProperty(config.port, config.portType, this, msg)) * 1;
             }
 
-            var server = net.createServer(function (socket) {
+            var id = node.port.toString(16);
 
-                socket.setKeepAlive(true, 120000);
+            if (typeof server === 'undefined') {
 
-                if (socketTimeout !== null) {
-                    socket.setTimeout(socketTimeout);
-                }
+                server = net.createServer(function (socket) {
 
-                var id = (1 + Math.random() * 4294967295).toString(16);
-                connectionPool[id] = socket;
-
-                var buffer = (node.datatype == 'buffer') ? Buffer.alloc(0) : "";
-
-                socket.on('data', function (data) {
-
-                    if (node.datatype != 'buffer') {
-                        data = data.toString(node.datatype == 'xml' ? 'utf8' : node.datatype);
+                    socket.setKeepAlive(true, 120000);
+    
+                    if (socketTimeout !== null) {
+                        socket.setTimeout(socketTimeout);
                     }
-
-                    if (node.stream) {
-
-                        var result = {
-                            topic: msg.topic || config.topic
-                        };
-
-                        if ((typeof data) === "string" && node.newline !== "") {
-
-                            buffer = buffer + data;
-                            var parts = buffer.split(node.newline);
-
-                            for (var i = 0; i < parts.length - 1; i += 1) {
-                                
-                                result.payload = parts[i];
-
-                                if (node.datatype == 'xml') {
-
-                                    var xml2js = require('xml2js');
-                                    var parseXml = xml2js.parseString;
-                                    var parseOpts = {};
-                                    parseOpts.async = true;
-                                    parseOpts.attrkey = '$';
-                                    parseOpts.charkey = '_';
-
-                                    if (config.xmlStrip) {
-                                        var stripPrefix = require('xml2js').processors.stripPrefix;
-                                        parseOpts.tagNameProcessors = [ stripPrefix ];
-                                    }
-
-                                    var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag
-                                    parseStr += node.newline;
-
-                                    parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
-                                        if (!parseErr) { 
-                                            result.payload = config.xmlSimplify ? simplifyXML(parseResult) : parseResult;
-                                            nodeSend(result);
-                                        }
-                                    });
-
-                                }
-                                else {
-                                    nodeSend(result);
-                                }
-
-                            }
-
-                            buffer = parts[parts.length - 1];
-
+    
+                    connectionPool[id] = socket;
+    
+                    var buffer = (node.datatype == 'buffer') ? Buffer.alloc(0) : "";
+    
+                    socket.on('data', function (data) {
+    
+                        if (node.datatype != 'buffer') {
+                            data = data.toString(node.datatype == 'xml' ? 'utf8' : node.datatype);
                         }
-                        else {
-                            result.payload = data;
-                            nodeSend(result);
-                        }
-
-                    }
-                    else {
-
-                        if ((typeof data) === "string") {
-                            buffer = buffer + data;
-                        }
-                        else {
-                            buffer = Buffer.concat([buffer, data], buffer.length + data.length);
-                        }
-
-                    }
-
-                });
-
-                socket.on('end', function () {
-                    if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
-                        if (buffer.length > 0) {
+    
+                        if (node.stream) {
+    
                             var result = {
-                                topic: msg.topic || config.topic,
-                                payload: buffer
+                                topic: msg.topic || config.topic
                             };
-                            nodeSend(result);
+    
+                            if ((typeof data) === "string" && node.newline !== "") {
+    
+                                buffer = buffer + data;
+                                var parts = buffer.split(node.newline);
+    
+                                for (var i = 0; i < parts.length - 1; i += 1) {
+                                    
+                                    result.payload = parts[i];
+    
+                                    if (node.datatype == 'xml') {
+    
+                                        var xml2js = require('xml2js');
+                                        var parseXml = xml2js.parseString;
+                                        var parseOpts = {};
+                                        parseOpts.async = true;
+                                        parseOpts.attrkey = '$';
+                                        parseOpts.charkey = '_';
+    
+                                        if (config.xmlStrip) {
+                                            var stripPrefix = require('xml2js').processors.stripPrefix;
+                                            parseOpts.tagNameProcessors = [ stripPrefix ];
+                                        }
+    
+                                        var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag
+                                        parseStr += node.newline;
+    
+                                        parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
+                                            if (!parseErr) { 
+                                                result.payload = config.xmlSimplify ? simplifyXML(parseResult) : parseResult;
+                                                nodeSend(result);
+                                            }
+                                        });
+    
+                                    }
+                                    else {
+                                        nodeSend(result);
+                                    }
+    
+                                }
+    
+                                buffer = parts[parts.length - 1];
+    
+                            }
+                            else {
+                                result.payload = data;
+                                nodeSend(result);
+                            }
+    
                         }
-                        buffer = null;
+                        else {
+    
+                            if ((typeof data) === "string") {
+                                buffer = buffer + data;
+                            }
+                            else {
+                                buffer = Buffer.concat([buffer, data], buffer.length + data.length);
+                            }
+    
+                        }
+    
+                    });
+    
+                    socket.on('end', function () {
+                        if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
+                            if (buffer.length > 0) {
+                                var result = {
+                                    topic: msg.topic || config.topic,
+                                    payload: buffer
+                                };
+                                nodeSend(result);
+                            }
+                            buffer = null;
+                        }
+                    });
+    
+                    socket.on('timeout', function () {
+                        socket.end();
+                    });
+    
+                    socket.on('close', function () {
+                        delete connectionPool[id];
+                    });
+    
+                    socket.on('error', function (err) {
+                        node.log(err);
+                    });
+    
+                });
+                
+                server.on('error', function (err) {
+                    if (err) {
+                        node.error(err);
                     }
                 });
 
-                socket.on('timeout', function () {
+            }
+
+            var close = function() {
+                if (connectionPool[id]) {
+                    var socket = connectionPool[id];
                     socket.end();
-                });
-
-                socket.on('close', function () {
+                    socket.destroy();
+                    socket.unref();
+                    server.close();
                     delete connectionPool[id];
-                });
-
-                socket.on('error', function (err) {
-                    node.log(err);
-                });
-
-            });
-           
-            server.on('error', function (err) {
-                if (err) {
-                    node.error(err);
                 }
-            });
+            };
 
-            server.listen(node.port, function (err) {
-                if (err) {
-                    node.error(err);
-                } else {
-                    node.on('close', function () {
-                        for (var c in connectionPool) {
-                            if (connectionPool.hasOwnProperty(c)) {
-                                connectionPool[c].end();
-                                connectionPool[c].unref();
-                            }
+            var listen = function() {
+                if (typeof connectionPool[id] === 'undefined') {
+                    server.listen(node.port, function (err) {
+                        if (err) {
+                            node.error(err);
                         }
-                        node.closing = true;
-                        server.close();
                     });
                 }
-            });
+                else {
+                    node.error(`Already listening on port ${node.port}`);
+                }
+            };
+
+            switch (node.action.toLowerCase()) {
+                case 'close':
+                    close();
+                    break;
+                default:
+                    listen();
+            }
 
         });
 
         node.on("close",function() {
+
+            for (var c in connectionPool) {
+                if (connectionPool.hasOwnProperty(c)) {
+                    var socket = connectionPool[c];
+                    socket.end();
+                    socket.destroy();
+                    socket.unref();
+                }
+            }
+
+            server.close();
+            connectionPool = {};
             node.status({});
+
         });
 
         function simplifyXML(message) {

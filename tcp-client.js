@@ -191,9 +191,28 @@ module.exports = function (RED) {
                 }
             };
 
+            var write = function() {
+
+                if (connectionPool[id] == null) return;
+                var socket = connectionPool[id];
+
+                var writeMsg = config.write;
+
+                if (config.writeType === 'msg' || config.writeType === 'flow' || config.writeType === 'global') {
+                    writeMsg = RED.util.evaluateNodeProperty(config.write, config.writeType, this, msg);
+                }
+
+                if (writeMsg == null) return;
+                socket.write(writeMsg);
+
+            };
+
             switch (node.action.toLowerCase()) {
                 case 'close':
                     close();
+                    break;
+                case 'write':
+                    write();
                     break;
                 default:
                     listen();

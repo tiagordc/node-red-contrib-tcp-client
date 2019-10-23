@@ -7,7 +7,7 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-host"><i class="fa fa-globe"></i> Port</label>
+        <label for="node-input-port"><i class="fa fa-globe"></i> Port</label>
         <input type="text" id="node-input-port" style="width:70%;" />
         <input type="hidden" id="node-input-portType">
     </div>
@@ -55,6 +55,12 @@
     </div>
 
     <div class="form-row">
+        <label for="node-input-write"><i class="fa fa-pencil"></i> Write</label>
+        <input type="text" id="node-input-write" style="width:70%;" />
+        <input type="hidden" id="node-input-writeType">
+    </div>
+
+    <div class="form-row">
         <label for="node-input-topic"><i class="icon-tag"></i> Topic</label>
         <input type="text" id="node-input-topic" placeholder="" style="width: 70%;">
     </div>
@@ -85,6 +91,8 @@
             xmlArray: { value: false },
             xmlNormalizeTags: { value: false },
             xmlNormalize: { value: false },
+            write: { value: "", required: false, validate: RED.validators.typedInput("writeType") },
+            writeType: { value: "str" },
             topic: { value: "" },
             name: { value: "" }
         },
@@ -151,6 +159,18 @@
             $("#node-input-port").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-portType"),
+                types: ['str', 'msg', 'flow', 'global', 'env'] 
+            });
+
+            if (this.writeType == null || this.writeType === 'string' || this.writeType === 'none') {
+                this.writeType = "str";
+            }
+
+            $("#node-input-writeType").val(this.writeType);
+
+            $("#node-input-write").typedInput({ 
+                default: 'str', 
+                typeField: $("#node-input-writeType"),
                 types: ['str', 'msg', 'flow', 'global', 'env'] 
             });
 

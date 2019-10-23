@@ -90,6 +90,7 @@ module.exports = function (RED) {
                                         if (config.xmlStrip) {
                                             var stripPrefix = require('xml2js').processors.stripPrefix;
                                             parseOpts.tagNameProcessors = [ stripPrefix ];
+                                            parseOpts.attrNameProcessors = [ stripPrefix ];
                                         }
     
                                         var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag

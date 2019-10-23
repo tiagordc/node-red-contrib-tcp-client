@@ -10,7 +10,7 @@ Allows stopping an existing connection by passing a "close" action:
 
 ![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/flow.png)
 
-This node was developed specifically for XML over TCP with some parsing options but other formats shoult still be supported.
+This node was developed specifically for XML over TCP with some parsing options but other formats should still be supported.
 
 ## How it works:
 
@@ -18,7 +18,7 @@ This node was developed specifically for XML over TCP with some parsing options 
 
 ## To install: 
 
-Install node-red.
+Install [node-red](https://nodered.org/).
 
 Install this package with "npm install node-red-contrib-tcp-client --save" in ~./node-red or via the Palette Manager in node-red.
 

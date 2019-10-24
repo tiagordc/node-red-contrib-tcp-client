@@ -79,7 +79,29 @@
         <input type="text" id="node-input-name" placeholder="" style="width: 70%;">
     </div>
 
-  </script>
+</script>
+
+<script type="text/x-red" data-help-name="tcp-client">
+    
+    <p>TCP client that listens for connections on specific port or connects to a specified host</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>action<span class="property-type">listen | close | write</span></dt>
+        <dd> the action to perform </dd>
+        <dt>host<span class="property-type">string</span></dt>
+        <dd> the optional server to connect to </dd>
+        <dt>port<span class="property-type">number</span></dt>
+        <dd> the port to accept incoming connections or the server port </dd>
+        <dt>output</dt>
+        <dd> output settings for the payload </dd>
+        <dt>write<span class="property-type">string</span></dt>
+        <dd> message or property to write to socket </dd>
+        <dt class="optional">topic <span class="property-type">string</span></dt>
+        <dd> the topic to publish to </dd>
+    </dl>
+
+</script>
 
 <script type="text/javascript">
 

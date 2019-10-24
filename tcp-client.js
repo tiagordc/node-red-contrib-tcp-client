@@ -20,8 +20,6 @@ module.exports = function (RED) {
         this.stream = (!config.datamode || config.datamode=='stream'); /* stream,single*/
         this.datatype = config.datatype || 'buffer'; /* buffer,utf8,base64,xml */
         this.newline = (config.newline || "").replace("\\n","\n").replace("\\r","\r");
-        this.closing = false;
-        this.connected = false;
 
         var node = this;
 

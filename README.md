@@ -24,6 +24,6 @@ Install [node-red](https://nodered.org/).
 
 Install this package with "npm install node-red-contrib-tcp-client --save" in ~./node-red or via the Palette Manager in node-red.
 
-If everything was successfull you should see the new tcp node under the network category.
+If everything was successfull you should see the new tcp client node under the network category.
 
 https://flows.nodered.org/node/node-red-contrib-tcp-client

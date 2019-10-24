@@ -9,10 +9,12 @@ module.exports = function (RED) {
     function TcpClient(config) {
 
         var net = require('net'); //https://nodejs.org/api/net.html
+        var crypto = require('crypto');
 
         RED.nodes.createNode(this, config);
 
-        this.action = config.action || "listen"; /* listen,close */
+        this.action = config.action || "listen"; /* listen,close,write */
+        this.host = config.host || null;
         this.port = config.port * 1;
         this.topic = config.topic;
         this.stream = (!config.datamode || config.datamode=='stream'); /* stream,single*/
@@ -21,7 +23,7 @@ module.exports = function (RED) {
         this.closing = false;
         this.connected = false;
 
-        const node = this;
+        var node = this;
 
         var connectionPool = {};
         var server;
@@ -32,169 +34,210 @@ module.exports = function (RED) {
                 node.action = RED.util.evaluateNodeProperty(config.action, config.actionType, this, msg);
             }
 
+            if (config.hostType === 'msg' || config.hostType === 'flow' || config.hostType === 'global') {
+                node.host = RED.util.evaluateNodeProperty(config.host, config.hostType, this, msg);
+            }
+
             if (config.portType === 'msg' || config.portType === 'flow' || config.portType === 'global') {
                 node.port = (RED.util.evaluateNodeProperty(config.port, config.portType, this, msg)) * 1;
             }
 
-            var id = node.port.toString(16);
+            var id = crypto.createHash('md5').update(`${node.host}${node.port}`).digest("hex");
 
-            if (typeof server === 'undefined') {
+            var configure = (id) => {
 
-                server = net.createServer(function (socket) {
+                var socket = connectionPool[id].socket;
 
-                    socket.setKeepAlive(true, 120000);
-    
-                    if (socketTimeout !== null) {
-                        socket.setTimeout(socketTimeout);
+                socket.setKeepAlive(true, 120000);
+
+                if (socketTimeout !== null) {
+                    socket.setTimeout(socketTimeout);
+                }
+
+                socket.on('data', (data) => {
+
+                    if (node.datatype != 'buffer') {
+                        data = data.toString(node.datatype == 'xml' ? 'utf8' : node.datatype);
                     }
     
-                    connectionPool[id] = socket;
+                    var buffer = connectionPool[id].buffer;
     
-                    var buffer = (node.datatype == 'buffer') ? Buffer.alloc(0) : "";
+                    if (node.stream) {
     
-                    socket.on('data', function (data) {
+                        var result = {
+                            topic: msg.topic || config.topic
+                        };
     
-                        if (node.datatype != 'buffer') {
-                            data = data.toString(node.datatype == 'xml' ? 'utf8' : node.datatype);
-                        }
+                        if ((typeof data) === "string" && node.newline !== "") {
     
-                        if (node.stream) {
+                            buffer = buffer + data;
+                            var parts = buffer.split(node.newline);
     
-                            var result = {
-                                topic: msg.topic || config.topic
-                            };
+                            for (var i = 0; i < parts.length - 1; i += 1) {
+                                
+                                result.payload = parts[i];
     
-                            if ((typeof data) === "string" && node.newline !== "") {
+                                if (node.datatype == 'xml') {
     
-                                buffer = buffer + data;
-                                var parts = buffer.split(node.newline);
+                                    var xml2js = require('xml2js');
+                                    var parseXml = xml2js.parseString;
     
-                                for (var i = 0; i < parts.length - 1; i += 1) {
-                                    
-                                    result.payload = parts[i];
+                                    var parseOpts = {
+                                        async: true,
+                                        attrkey: (config.xmlAttrkey || '$'),
+                                        charkey: (config.xmlCharkey || '_'),
+                                        explicitArray:  config.xmlArray,
+                                        normalizeTags: config.xmlNormalizeTags,
+                                        normalize: config.xmlNormalize
+                                    };
     
-                                    if (node.datatype == 'xml') {
+                                    if (config.xmlStrip) {
+                                        var stripPrefix = require('xml2js').processors.stripPrefix;
+                                        parseOpts.tagNameProcessors = [ stripPrefix ];
+                                        parseOpts.attrNameProcessors = [ stripPrefix ];
+                                    }
     
-                                        var xml2js = require('xml2js');
-                                        var parseXml = xml2js.parseString;
-
-                                        var parseOpts = {
-                                            async: true,
-                                            attrkey: (config.xmlAttrkey || '$'),
-                                            charkey: (config.xmlCharkey || '_'),
-                                            explicitArray:  config.xmlArray,
-                                            normalizeTags: config.xmlNormalizeTags,
-                                            normalize: config.xmlNormalize
-                                        };
-
-                                        if (config.xmlStrip) {
-                                            var stripPrefix = require('xml2js').processors.stripPrefix;
-                                            parseOpts.tagNameProcessors = [ stripPrefix ];
-                                            parseOpts.attrNameProcessors = [ stripPrefix ];
+                                    var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag
+                                    parseStr += node.newline;
+    
+                                    parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
+                                        if (!parseErr) { 
+                                            result.payload = parseResult;
+                                            nodeSend(result);
                                         }
-    
-                                        var parseStr = result.payload.replace(/^[\x00\s]*/g, "");//Non-whitespace before first tag
-                                        parseStr += node.newline;
-    
-                                        parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
-                                            if (!parseErr) { 
-                                                result.payload = parseResult;
-                                                nodeSend(result);
-                                            }
-                                        });
-    
-                                    }
-                                    else {
-                                        nodeSend(result);
-                                    }
+                                    });
     
                                 }
-    
-                                buffer = parts[parts.length - 1];
+                                else {
+                                    nodeSend(result);
+                                }
     
                             }
-                            else {
-                                result.payload = data;
-                                nodeSend(result);
-                            }
+    
+                            buffer = parts[parts.length - 1];
     
                         }
                         else {
-    
-                            if ((typeof data) === "string") {
-                                buffer = buffer + data;
-                            }
-                            else {
-                                buffer = Buffer.concat([buffer, data], buffer.length + data.length);
-                            }
-    
+                            result.payload = data;
+                            nodeSend(result);
                         }
     
-                    });
+                    }
+                    else {
     
-                    socket.on('end', function () {
-                        if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
-                            if (buffer.length > 0) {
-                                var result = {
-                                    topic: msg.topic || config.topic,
-                                    payload: buffer
-                                };
-                                nodeSend(result);
-                            }
-                            buffer = null;
+                        if ((typeof data) === "string") {
+                            buffer = buffer + data;
                         }
-                    });
+                        else {
+                            buffer = Buffer.concat([buffer, data], buffer.length + data.length);
+                        }
     
-                    socket.on('timeout', function () {
-                        socket.end();
-                    });
+                    }
     
-                    socket.on('close', function () {
-                        delete connectionPool[id];
-                    });
-    
-                    socket.on('error', function (err) {
-                        node.log(err);
-                    });
-    
+                    connectionPool[id].buffer = buffer;
+
                 });
-                
-                server.on('error', function (err) {
-                    if (err) {
-                        node.error(err);
+
+                socket.on('end', function () {
+                    if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
+                        var buffer = connectionPool[id].buffer;
+                        if (buffer.length > 0) nodeSend({ topic: msg.topic || config.topic, payload: buffer });
+                        connectionPool[id].buffer = null;
                     }
                 });
 
-            }
+                socket.on('timeout', function () {
+                    socket.end();
+                });
+
+                socket.on('close', function () {
+                    delete connectionPool[id];
+                });
+
+                socket.on('error', function (err) {
+                    node.log(err);
+                });
+
+            };
 
             var close = function() {
-                if (connectionPool[id]) {
-                    var socket = connectionPool[id];
-                    socket.end();
-                    socket.destroy();
-                    socket.unref();
-                    server.close();
-                    delete connectionPool[id];
+
+                if (node.host == null) {
+
+                    if (connectionPool[id]) {
+                        var socket = connectionPool[id].socket;
+                        socket.end();
+                        socket.destroy();
+                        socket.unref();
+                        server.close();
+                    }
+
+                    connectionPool = {};
+
                 }
+                else if (node.port != null) {
+
+                }
+              
             };
 
             var listen = function() {
+                
                 if (typeof connectionPool[id] === 'undefined') {
-                    server.listen(node.port, function (err) {
-                        if (err) {
-                            node.error(err);
+
+                    if (node.host == null) {
+
+                        if (typeof server === 'undefined') {
+    
+                            server = net.createServer(function (socket) {
+            
+                                connectionPool[id] = {
+                                    socket: socket,
+                                    buffer: (node.datatype == 'buffer') ? Buffer.alloc(0) : ""
+                                };
+                                
+                                configure(id);
+                
+                            });
+                            
+                            server.on('error', function (err) {
+                                if (err) {
+                                    node.error(err);
+                                }
+                            });
+            
                         }
-                    });
+        
+                        server.listen(node.port, function (err) {
+                            if (err) node.error(err);
+                        });
+    
+                    }
+                    else if (node.port != null) {
+    
+                        connectionPool[id] = {
+                            socket: net.connect(node.port, node.host),
+                            buffer: (node.datatype == 'buffer') ? Buffer.alloc(0) : ""
+                        };
+
+                        configure(id);
+
+                    }
+                    else {
+                        node.error(`Configuration error`);
+                    }
+
                 }
                 else {
-                    node.error(`Already listening on port ${node.port}`);
+                    node.error(`Already connected`);
                 }
+
             };
 
             var write = function() {
 
                 if (connectionPool[id] == null) return;
-                var socket = connectionPool[id];
+                var socket = connectionPool[id].socket;
 
                 var writeMsg = config.write;
 
@@ -203,7 +246,14 @@ module.exports = function (RED) {
                 }
 
                 if (writeMsg == null) return;
-                socket.write(writeMsg);
+
+                if (Buffer.isBuffer(writeMsg)) {
+                    socket.write(writeMsg);
+                } else if (typeof writeMsg === "string" && node.datatype == 'base64') {
+                    socket.write(Buffer.from(writeMsg, 'base64'));
+                } else {
+                    socket.write(Buffer.from("" + writeMsg));
+                }
 
             };
 
@@ -224,7 +274,7 @@ module.exports = function (RED) {
 
             for (var c in connectionPool) {
                 if (connectionPool.hasOwnProperty(c)) {
-                    var socket = connectionPool[c];
+                    var socket = connectionPool[c].socket;
                     socket.end();
                     socket.destroy();
                     socket.unref();

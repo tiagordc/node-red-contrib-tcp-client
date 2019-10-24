@@ -4,13 +4,15 @@
 ![npm](https://img.shields.io/npm/v/node-red-contrib-tcp-client)
 ![npm](https://img.shields.io/npm/dm/node-red-contrib-tcp-client)
 
+This node is a **TCP client** that listens for connections on specific port or connects to a specified host.
+
 Unlike the default node-red tcp-in node, this one allows you to create dynamic TCP connections.
 
 Allows stopping an existing connection by passing a "close" action:
 
 ![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/flow.png)
 
-This node was developed specifically for XML over TCP with some parsing options but other formats should still be supported.
+This was developed specifically for XML over TCP with some parsing options but other formats should still be supported.
 
 ## How it works:
 

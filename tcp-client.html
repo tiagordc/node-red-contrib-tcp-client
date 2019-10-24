@@ -3,12 +3,21 @@
     <div class="form-row">
         <label for="node-input-action"><i class="fa fa-tag"></i> Action</label>
         <input type="text" id="node-input-action" placeholder="" style="width: 70%;">
+        <span style="display: block; padding-left: 106px; color: gray; font-size: x-small;">Available actions: Listen, Close and Write</span>
         <input type="hidden" id="node-input-actionType">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-folder"></i> Host</label>
+        <input type="text" id="node-input-host" style="width:70%;" />
+        <span style="display: block; padding-left: 106px; color: gray; font-size: x-small;">Leave empty to wait for connections on the specified port</span>
+        <input type="hidden" id="node-input-hostType">
     </div>
 
     <div class="form-row">
         <label for="node-input-port"><i class="fa fa-globe"></i> Port</label>
         <input type="text" id="node-input-port" style="width:70%;" />
+        <span style="display: block; padding-left: 106px; color: gray; font-size: x-small;">Host port (if specified) or local port to listen</span>
         <input type="hidden" id="node-input-portType">
     </div>
 
@@ -61,7 +70,7 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-topic"><i class="icon-tag"></i> Topic</label>
+        <label for="node-input-topic"><i class="fa fa-tags"></i> Topic</label>
         <input type="text" id="node-input-topic" placeholder="" style="width: 70%;">
     </div>
 
@@ -80,6 +89,8 @@
         defaults: {
             action: { value: "Listen", required: true, validate: RED.validators.typedInput("actionType") },
             actionType: { value: "str" },
+            host: { value: "", required: false, validate: RED.validators.typedInput("hostType") },
+            hostType: { value: "str" },
             port: { value: "payload", required: true, validate: RED.validators.typedInput("portType") },
             portType: { value: "msg" },
             datamode: {value: "stream" },
@@ -147,6 +158,18 @@
             $("#node-input-action").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-actionType"),
+                types: ['str', 'msg', 'flow', 'global', 'env'] 
+            });
+
+            if (this.hostType == null || this.hostType === 'string' || this.hostType === 'none') {
+                this.hostType = "str";
+            }
+
+            $("#node-input-hostType").val(this.hostType);
+
+            $("#node-input-host").typedInput({ 
+                default: 'str', 
+                typeField: $("#node-input-hostType"),
                 types: ['str', 'msg', 'flow', 'global', 'env'] 
             });
 

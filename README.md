@@ -14,7 +14,9 @@ Allows stopping the connection by passing a "close" argument:
 
 This project was developed specifically for XML over TCP with some parsing options but other formats should still be supported.
 
-## How it works:
+To report an issue use the project [GitHub](https://github.com/tiagordc/node-red-contrib-tcp-client/issues) page
+
+## Configuration:
 
 ![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client/master/edit.png)
 
@@ -22,7 +24,7 @@ This project was developed specifically for XML over TCP with some parsing optio
 
 Install [node-red](https://nodered.org/).
 
-Install this package with "npm install node-red-contrib-tcp-client --save" in ~./node-red or via the Palette Manager in node-red.
+Install [this package](https://www.npmjs.com/package/node-red-contrib-tcp-client) with "npm install node-red-contrib-tcp-client --save" in ~./node-red or via the Palette Manager in node-red.
 
 If everything was successfull you should see the new tcp client node under the network category.
 

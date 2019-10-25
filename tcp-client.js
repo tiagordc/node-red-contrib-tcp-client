@@ -17,6 +17,7 @@ module.exports = function (RED) {
         this.host = config.host || null;
         this.port = config.port * 1;
         this.topic = config.topic;
+        this.debug = config.debug;
         this.stream = (!config.datamode || config.datamode=='stream'); /* stream,single*/
         this.datatype = config.datatype || 'buffer'; /* buffer,utf8,base64,xml */
         this.newline = (config.newline || "").replace("\\n","\n").replace("\\r","\r");
@@ -53,6 +54,8 @@ module.exports = function (RED) {
                 }
 
                 socket.on('data', (data) => {
+
+                    if (node.debug === 'all') node.warn(`Data received from ${socket.remoteAddress}:${socket.remotePort}`);
 
                     if (node.datatype != 'buffer') {
                         data = data.toString(node.datatype == 'xml' ? 'utf8' : node.datatype);
@@ -162,6 +165,8 @@ module.exports = function (RED) {
 
                 if (node.host == null) {
 
+                    if (node.debug === 'all') node.warn(`Closing port ${node.port}`);
+
                     if (connectionPool[id]) {
                         var socket = connectionPool[id].socket;
                         socket.end();
@@ -174,6 +179,10 @@ module.exports = function (RED) {
 
                 }
                 else if (node.port != null) {
+
+                    if (node.debug === 'all') node.warn(`Closing connection to ${node.host}:${node.port}`);
+
+                    //TODO
 
                 }
               
@@ -189,6 +198,8 @@ module.exports = function (RED) {
     
                             server = net.createServer(function (socket) {
             
+                                if (node.debug === 'all') node.warn(`Connection started with ${socket.remoteAddress}:${socket.remotePort}`);
+
                                 connectionPool[id] = {
                                     socket: socket,
                                     buffer: (node.datatype == 'buffer') ? Buffer.alloc(0) : ""
@@ -199,15 +210,15 @@ module.exports = function (RED) {
                             });
                             
                             server.on('error', function (err) {
-                                if (err) {
-                                    node.error(err);
-                                }
+                                if (err && node.debug !== 'none') node.error(err);
                             });
             
                         }
         
+                        if (node.debug === 'all') node.warn(`Starting to listen on port ${node.port}`);
+
                         server.listen(node.port, function (err) {
-                            if (err) node.error(err);
+                            if (err && node.debug !== 'none') node.error(err);
                         });
     
                     }
@@ -222,12 +233,12 @@ module.exports = function (RED) {
 
                     }
                     else {
-                        node.error(`Configuration error`);
+                        if (node.debug !== 'none') node.error(`Configuration error`);
                     }
 
                 }
                 else {
-                    node.error(`Already connected`);
+                    if (node.debug !== 'none') node.error(`Already connected`);
                 }
 
             };

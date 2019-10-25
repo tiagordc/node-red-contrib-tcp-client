@@ -7,6 +7,10 @@
         <input type="hidden" id="node-input-actionType">
     </div>
 
+    <hr/>
+
+    <div class="form-row">Connection details:</div>
+
     <div class="form-row">
         <label for="node-input-host"><i class="fa fa-folder"></i> Host</label>
         <input type="text" id="node-input-host" style="width:70%;" />
@@ -20,6 +24,10 @@
         <span style="display: block; padding-left: 106px; color: gray; font-size: x-small;">Host port (if specified) or local port to listen</span>
         <input type="hidden" id="node-input-portType">
     </div>
+
+    <hr/>
+
+    <div class="form-row">On <b>listen</b>:</div>
 
     <div class="form-row">
         <label><i class="fa fa-sign-out"></i> Output</label>
@@ -52,22 +60,28 @@
         <label for="node-input-xmlStrip" style="width:70%; margin-left: 104px;">
             <input type="checkbox" id="node-input-xmlStrip" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlStrip"> Remove namespaces from response</span>
         </label>
-        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+        <label for="node-input-xmlArray" style="width:70%; margin-left: 104px;">
             <input type="checkbox" id="node-input-xmlArray" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlArray"> Handle child nodes as arrays</span>
         </label>
-        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+        <label for="node-input-xmlNormalizeTags" style="width:70%; margin-left: 104px;">
             <input type="checkbox" id="node-input-xmlNormalizeTags" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlNormalizeTags"> Normalize all tag names to lowercase</span>
         </label>
-        <label for="node-input-xmlSimplify" style="width:70%; margin-left: 104px;">
+        <label for="node-input-xmlNormalize" style="width:70%; margin-left: 104px;">
             <input type="checkbox" id="node-input-xmlNormalize" style="display:inline-block; width:22px; vertical-align:baseline;"><span for="node-input-xmlNormalize"> Trim whitespaces inside text nodes</span>
         </label>
     </div>
 
+    <hr/>
+
+    <div class="form-row">On <b>write</b>:</div>
+
     <div class="form-row">
-        <label for="node-input-write"><i class="fa fa-pencil"></i> Write</label>
+        <label for="node-input-write"><i class="fa fa-pencil"></i> Message</label>
         <input type="text" id="node-input-write" style="width:70%;" />
         <input type="hidden" id="node-input-writeType">
     </div>
+
+    <hr/>
 
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tags"></i> Topic</label>
@@ -77,6 +91,15 @@
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="" style="width: 70%;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-bug"></i> Debug</label>
+        <select id="node-input-debug" style="width:110px;">
+            <option value="none">Nothing</option>
+            <option value="errors">Only Errors</option>
+            <option value="all">Detailed</option>
+        </select>
     </div>
 
 </script>
@@ -99,6 +122,10 @@
         <dd> message or property to write to socket </dd>
         <dt class="optional">topic <span class="property-type">string</span></dt>
         <dd> the topic to publish to </dd>
+        <dt class="optional">name <span class="property-type">string</span></dt>
+        <dd> the name for this node </dd>
+        <dt class="optional">debug</dt>
+        <dd> level of debug messages to show </dd>
     </dl>
 
 </script>
@@ -109,12 +136,15 @@
         category: 'network',
         color: '#cc66ff',
         defaults: {
+
             action: { value: "Listen", required: true, validate: RED.validators.typedInput("actionType") },
             actionType: { value: "str" },
+
             host: { value: "", required: false, validate: RED.validators.typedInput("hostType") },
             hostType: { value: "str" },
             port: { value: "payload", required: true, validate: RED.validators.typedInput("portType") },
             portType: { value: "msg" },
+            
             datamode: {value: "stream" },
             datatype: {value: "buffer" },
             newline: {value: "" },
@@ -124,10 +154,13 @@
             xmlArray: { value: false },
             xmlNormalizeTags: { value: false },
             xmlNormalize: { value: false },
+
             write: { value: "", required: false, validate: RED.validators.typedInput("writeType") },
             writeType: { value: "str" },
+
             topic: { value: "" },
-            name: { value: "" }
+            name: { value: "" },
+            debug: { value: "none" }
         },
         inputs: 1,
         outputs: 1,
@@ -174,9 +207,7 @@
             if (this.actionType == null || this.actionType === 'string' || this.actionType === 'none') {
                 this.actionType = "str";
             }
-
             $("#node-input-actionType").val(this.actionType);
-
             $("#node-input-action").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-actionType"),
@@ -186,9 +217,7 @@
             if (this.hostType == null || this.hostType === 'string' || this.hostType === 'none') {
                 this.hostType = "str";
             }
-
             $("#node-input-hostType").val(this.hostType);
-
             $("#node-input-host").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-hostType"),
@@ -198,9 +227,7 @@
             if (this.portType == null || this.portType === 'string' || this.portType === 'none') {
                 this.portType = "str";
             }
-
             $("#node-input-portType").val(this.portType);
-
             $("#node-input-port").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-portType"),
@@ -210,15 +237,13 @@
             if (this.writeType == null || this.writeType === 'string' || this.writeType === 'none') {
                 this.writeType = "str";
             }
-
             $("#node-input-writeType").val(this.writeType);
-
             $("#node-input-write").typedInput({ 
                 default: 'str', 
                 typeField: $("#node-input-writeType"),
                 types: ['str', 'msg', 'flow', 'global', 'env'] 
             });
-
+            
         }
     });
 

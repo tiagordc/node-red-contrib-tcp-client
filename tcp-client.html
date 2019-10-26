@@ -163,7 +163,17 @@
             debug: { value: "none" }
         },
         inputs: 1,
-        outputs: 1,
+        outputs: 3,
+        outputLabels: function(index) {
+            switch (index) {
+                case 0:
+                    return 'Data received';
+                case 1:
+                    return 'Connection ready';
+                case 2:
+                    return 'Connection closed';
+            }
+        },
         icon: "bridge-dash.svg",
         label: function () {
             return this.name || "TCP";

@@ -104,13 +104,13 @@ module.exports = function (RED) {
                                     parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
                                         if (!parseErr) { 
                                             result.payload = parseResult;
-                                            nodeSend([result, null]);
+                                            nodeSend([result, null, null]);
                                         }
                                     });
     
                                 }
                                 else {
-                                    nodeSend([result, null]);
+                                    nodeSend([result, null, null]);
                                 }
     
                             }
@@ -120,7 +120,7 @@ module.exports = function (RED) {
                         }
                         else {
                             result.payload = data;
-                            nodeSend([result, null]);
+                            nodeSend([result, null, null]);
                         }
     
                     }
@@ -142,7 +142,7 @@ module.exports = function (RED) {
                 socket.on('end', function () {
                     if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
                         var buffer = connectionPool[id].buffer;
-                        if (buffer.length > 0) nodeSend([{ topic: msg.topic || config.topic, payload: buffer }, null]);
+                        if (buffer.length > 0) nodeSend([{ topic: msg.topic || config.topic, payload: buffer }, null, null]);
                         connectionPool[id].buffer = null;
                     }
                 });
@@ -177,6 +177,8 @@ module.exports = function (RED) {
 
                     connectionPool = {};
 
+                    nodeSend([null, null, { topic: msg.topic || config.topic, payload: id }]);
+
                 }
                 else if (node.port != null) {
 
@@ -206,6 +208,8 @@ module.exports = function (RED) {
                                 };
                                 
                                 configure(id);
+
+                                connectionPool[id].ready = true;
                 
                             });
                             
@@ -220,6 +224,8 @@ module.exports = function (RED) {
                         server.listen(node.port, function (err) {
                             if (err && node.debug !== 'none') node.error(err);
                         });
+
+                        nodeSend([null, { topic: msg.topic || config.topic, payload: id }, null]);
     
                     }
                     else if (node.port != null) {
@@ -230,6 +236,8 @@ module.exports = function (RED) {
                         };
 
                         configure(id);
+
+                        nodeSend([null, { topic: msg.topic || config.topic, payload: id }, null]);
 
                     }
                     else {

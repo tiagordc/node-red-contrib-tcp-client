@@ -104,13 +104,13 @@ module.exports = function (RED) {
                                     parseXml(parseStr, parseOpts, function (parseErr, parseResult) {
                                         if (!parseErr) { 
                                             result.payload = parseResult;
-                                            nodeSend(result);
+                                            nodeSend([result, null]);
                                         }
                                     });
     
                                 }
                                 else {
-                                    nodeSend(result);
+                                    nodeSend([result, null]);
                                 }
     
                             }
@@ -120,7 +120,7 @@ module.exports = function (RED) {
                         }
                         else {
                             result.payload = data;
-                            nodeSend(result);
+                            nodeSend([result, null]);
                         }
     
                     }
@@ -142,7 +142,7 @@ module.exports = function (RED) {
                 socket.on('end', function () {
                     if (!node.stream || (node.datatype === "utf8" && node.newline !== "")) {
                         var buffer = connectionPool[id].buffer;
-                        if (buffer.length > 0) nodeSend({ topic: msg.topic || config.topic, payload: buffer });
+                        if (buffer.length > 0) nodeSend([{ topic: msg.topic || config.topic, payload: buffer }, null]);
                         connectionPool[id].buffer = null;
                     }
                 });

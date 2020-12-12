@@ -1,4 +1,4 @@
-# node-red-contrib-tcp-client-bobby
+# node-red-contrib-tcp-client-con
 Forked to fix issue with close action.
 Original package https://github.com/tiagordc/node-red-contrib-tcp-client
 

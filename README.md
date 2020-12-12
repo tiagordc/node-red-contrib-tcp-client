@@ -12,7 +12,7 @@ Unlike the default node-red tcp-in node, this one allows you to create dynamic T
 
 Allows stopping the connection by passing a "close" argument:
 
-![node configuration](https://raw.githubusercontent.com/bobbytables2018/node-red-contrib-tcp-client-con/master/flow.png)
+![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client-con/master/flow.png)
 
 This project was developed specifically for XML over TCP with some parsing options but other formats should still be supported.
 
@@ -20,7 +20,7 @@ To report an issue use the project [GitHub](https://github.com/bobbytables2018/n
 
 ## Configuration:
 
-![node configuration](https://raw.githubusercontent.com/bobbytables2018/node-red-contrib-tcp-client-con/master/edit.png)
+![node configuration](https://raw.githubusercontent.com/tiagordc/node-red-contrib-tcp-client-con/master/edit.png)
 
 ## To install: 
 

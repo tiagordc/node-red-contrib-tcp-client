@@ -6,7 +6,7 @@ module.exports = function (RED) {
 
     var socketTimeout = RED.settings.socketTimeout||null;
 
-    function TcpClient(config) {
+    function TcpClientCon(config) {
 
         var net = require('net'); //https://nodejs.org/api/net.html
         var crypto = require('crypto');
@@ -312,6 +312,6 @@ module.exports = function (RED) {
 
     };
 
-    RED.nodes.registerType("tcp-client", TcpClient);
+    RED.nodes.registerType("tcp-client-Con", TcpClientCon);
 
 };

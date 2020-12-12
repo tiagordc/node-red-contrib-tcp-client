@@ -172,7 +172,7 @@ module.exports = function (RED) {
                         socket.end();
                         socket.destroy();
                         socket.unref();
-                        server.close();
+                        //server.close();
                     }
 
                     connectionPool = {};
@@ -184,7 +184,13 @@ module.exports = function (RED) {
 
                     if (node.debug === 'all') node.warn(`Closing connection to ${node.host}:${node.port}`);
 
-                    //TODO
+                    if (connectionPool[id]) {
+                        var socket = connectionPool[id].socket;
+                        socket.end();
+                        socket.destroy();
+                        socket.unref();
+                        //server.close();
+                    }
 
                 }
               

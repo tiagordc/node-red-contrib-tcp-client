@@ -4,7 +4,7 @@
   "description": "Dynamic TCP Client",
   "node-red": {
     "nodes": {
-      "tcp-client": "tcp-client.js"
+      "tcp-client": "tcp-client-con.js"
     }
   },
   "dependencies": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tiagordc/node-red-contrib-tcp-client.git"
+    "url": "git+https://github.com/bobbytables2048/node-red-contrib-tcp-client-con.git"
   },
   "keywords": [
     "node-red",
@@ -22,10 +22,10 @@
     "tcp-client",
     "xml"
   ],
-  "author": "Tiago Costa",
+  "author": "Bobby Tables",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tiagordc/node-red-contrib-tcp-client/issues"
+    "url": "https://github.com/bobbytables2048/node-red-contrib-tcp-client-con/issues"
   },
-  "homepage": "https://github.com/tiagordc/node-red-contrib-tcp-client#readme"
+  "homepage": "https://github.com/bobbytables2048/node-red-contrib-tcp-client-con#readme"
 }

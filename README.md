@@ -1,5 +1,6 @@
 # node-red-contrib-tcp-client-bobby
 Forked to fix issue with close action.
+Original package https://github.com/tiagordc/node-red-contrib-tcp-client
 
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/tiagordc/node-red-contrib-tcp-client?label=package)
 ![npm](https://img.shields.io/npm/v/node-red-contrib-tcp-client)

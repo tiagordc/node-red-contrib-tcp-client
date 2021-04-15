@@ -304,7 +304,7 @@ module.exports = function (RED) {
                 }
             }
 
-            server.close();
+            //server.close();
             connectionPool = {};
             node.status({});
 

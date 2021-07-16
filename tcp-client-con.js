@@ -6,7 +6,7 @@ module.exports = function (RED) {
 
     var socketTimeout = RED.settings.socketTimeout||null;
 
-    function TcpClient(config) {
+    function TcpClientCon(config) {
 
         var net = require('net'); //https://nodejs.org/api/net.html
         var crypto = require('crypto');
@@ -172,7 +172,7 @@ module.exports = function (RED) {
                         socket.end();
                         socket.destroy();
                         socket.unref();
-                        server.close();
+                        //server.close();
                     }
 
                     connectionPool = {};
@@ -184,7 +184,13 @@ module.exports = function (RED) {
 
                     if (node.debug === 'all') node.warn(`Closing connection to ${node.host}:${node.port}`);
 
-                    //TODO
+                    if (connectionPool[id]) {
+                        var socket = connectionPool[id].socket;
+                        socket.end();
+                        socket.destroy();
+                        socket.unref();
+                        //server.close();
+                    }
 
                 }
               
@@ -298,7 +304,7 @@ module.exports = function (RED) {
                 }
             }
 
-            server.close();
+            //server.close();
             connectionPool = {};
             node.status({});
 
@@ -306,6 +312,6 @@ module.exports = function (RED) {
 
     };
 
-    RED.nodes.registerType("tcp-client", TcpClient);
+    RED.nodes.registerType("tcp-client-Con", TcpClientCon);
 
 };
